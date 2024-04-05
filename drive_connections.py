@@ -1,133 +1,91 @@
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 import pandas as pd
 
-def authenticate_and_connect(service_account_file):
-    """
-    Authenticate and connect to the Google Drive API.
+class GoogleDrive():
 
-    Parameters:
-        service_account_file (str): Path to the service account JSON file containing
-            Google API credentials.
+    def __init__(self, service_account_file: str, folder_name: str) -> None:
 
-    Returns:
-        Resource: An instance of the Google Drive API service for interacting with
-            Google Drive.
-    
-    Raises:
-        FileNotFoundError: If the provided service account file is not found.
-        google.auth.exceptions.DefaultCredentialsError: If the credentials cannot
-            be loaded from the provided service account file.
-        google.auth.exceptions.RefreshError: If the provided credentials are invalid
-            or expired.
-    """
-    SCOPES = ['https://www.googleapis.com/auth/drive']
-    creds = service_account.Credentials.from_service_account_file(
-        service_account_file,
-        scopes = SCOPES
-    )
-    service = build('drive', 'v3', credentials= creds)
+        ''' connect '''
+        SCOPES = ['https://www.googleapis.com/auth/drive']
+        CREDS = service_account.Credentials.from_service_account_file(
+            service_account_file,
+            scopes = SCOPES
+        )
+        self.service = build('drive', 'v3', credentials= CREDS)
 
-    return service
-
-
-def get_main_folder_id(service, folder_name):
-    """
-    Retrieve the ID of the main folder with the specified name in Google Drive.
-
-    Parameters:
-        service (Resource): An instance of the Google Drive API service.
-        folder_name (str): The name of the main folder to retrieve the ID for.
-
-    Returns:
-        str: The ID of the main folder with the specified name.
-
-    Raises:
-        IndexError: If no folder with the specified name is found in Google Drive.
-        googleapiclient.errors.HttpError: If an error occurs while executing the API request.
-    """
-
-    items = service.files().list(pageSize=1000, 
-                            fields="nextPageToken, files(id, name, mimeType, size, modifiedTime)",
-                            q = f"mimeType = 'application/vnd.google-apps.folder' and name = '{folder_name}'").execute()
-    
-    main_folder_id = items['files'][0]['id']
-
-    return main_folder_id
-
-
-def list_folders_and_files(service, folder_id):
-    """
-    List all folders and files within the specified folder in Google Drive.
-
-    Parameters:
-        service (Resource): An instance of the Google Drive API service.
-        folder_id (str): The ID of the folder to list files and folders from.
-
-    Returns:
-        list: A list containing dictionaries representing files and folders within the specified folder.
-            Each dictionary contains metadata such as file ID, name, MIME type, size, and modification time.
-    
-    Raises:
-        googleapiclient.errors.HttpError: If an error occurs while executing the API request.
-    """
-
-    items = service.files().list(pageSize=1000, 
+        ''' takes main folder id '''
+        items = self.service.files().list(pageSize=1000, 
                                 fields="nextPageToken, files(id, name, mimeType, size, modifiedTime)",
-                                q= f"'{folder_id}' in parents").execute()
-    list_files_and_folders = items.get('files', [])
+                                q = f"mimeType = 'application/vnd.google-apps.folder' and name = '{folder_name}'").execute()
+        
+        self._main_folder_id = items['files'][0]['id']
 
-    return list_files_and_folders
+    @property
+    def main_folder_id(self):
+        return self._main_folder_id
 
-def transform_files_list_in_dataframe(files_dict):
-    """
-    Transform a list of file metadata dictionaries into a Pandas DataFrame.
+    def list_folders_and_files(self, as_df= False) -> dict | pd.DataFrame:
 
-    Parameters:
-        files_dict (list): A list containing dictionaries representing file metadata.
-            Each dictionary should contain metadata such as file ID, name, MIME type,
-            size, and modification time.
+        ''' list files and foldes in maind folder '''
+        items = self.service.files().list(pageSize=1000, 
+                                    fields="nextPageToken, files(id, name, mimeType, size, modifiedTime)",
+                                    q= f"'{self._main_folder_id}' in parents").execute()
+        files_and_folders = items.get('files', [])
 
-    Returns:
-        DataFrame: A Pandas DataFrame containing the transformed file metadata.
-            The DataFrame has columns for file size (in MB), file ID, name, last modification
-            time, and type of file.
+        if as_df:
+            data = []
 
-    Notes:
-        The file size is converted from bytes to megabytes (MB) and rounded to two decimal places.
-        If the size metadata is missing for a file, it is treated as 0 MB.
-    """
+            for row in files_and_folders:
+                # if row["mimeType"] != "application/vnd.google-apps.folder": 
+                    row_data = []
+                    try:
+                        row_data.append(round(int(row["size"])/1000000, 2))
+                    except KeyError:
+                        row_data.append(0.00)
+                    row_data.append(row["id"])
+                    row_data.append(row["name"])
+                    row_data.append(row["modifiedTime"])
+                    row_data.append(row["mimeType"])
+                    data.append(row_data)
 
-    data = []
+            cleared_df = pd.DataFrame(data, columns = ['size_in_MB', 'id', 'name', 'last_modification', 'type_of_file'])
 
-    for row in files_dict:
-        if row["mimeType"] != "application/vnd.google-apps.folder": 
-            row_data = []
-            try:
-                row_data.append(round(int(row["size"])/1000000, 2))
-            except KeyError:
-                row_data.append(0.00)
-            row_data.append(row["id"])
-            row_data.append(row["name"])
-            row_data.append(row["modifiedTime"])
-            row_data.append(row["mimeType"])
-            data.append(row_data)
+            return cleared_df
+        
+        return files_and_folders
+    
+    def create_folder(self, folder_name = 'New Folder') -> str:
+        ''' createa a new folder in main folder '''
+        folder_metadata = {
+            'name': folder_name,
+            "mimeType": "application/vnd.google-apps.folder",
+            'parents': [self.main_folder_id]
+        }
 
-    cleared_df = pd.DataFrame(data, columns = ['size_in_MB', 'id', 'name', 'last_modification', 'type_of_file'])
+        new_folder_id = self.service.files().create(
+            body=folder_metadata,
+            fields='id'
+        ).execute()
 
-    return cleared_df
-     
+        print(f'Created Folder ID: {new_folder_id["id"]}')
 
+        return new_folder_id
+         
+    def upload_file(self, file_path: str, file_name = 'New File', folder_id: str = None )-> str:
+        
+        if folder_id is None:
+            folder_id = self._main_folder_id
 
-if __name__ == '__main__':
+        file_metadata = {'name': file_name,
+                         'parents': [folder_id]}
+        media = MediaFileUpload(file_path)
+        file = self.service.files().create(body=file_metadata, 
+                                           media_body=media, 
+                                           fields='id').execute()
+        
+        print(f'File "{file_name}" uploaded successfully with ID: {file["id"]}')
 
-    folder_name = 'test driver'
+        return file['id']
 
-    service_account_file = 'service_account.json'
-
-    service = authenticate_and_connect(service_account_file)
-    main_folder_id = get_main_folder_id(service, folder_name)
-    list_dir_and_files = list_folders_and_files(service, main_folder_id)
-    df_files = transform_files_list_in_dataframe(list_dir_and_files)
-
-    print(df_files)
