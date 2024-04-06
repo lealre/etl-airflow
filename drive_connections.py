@@ -55,23 +55,36 @@ class GoogleDrive():
             return cleared_df
         
         return files_and_folders
-    
+
+    def id_folders(self) -> dict[str,str]:
+        all_directories = self.list_folders_and_files(as_df= True)
+
+        folders_id = all_directories.loc[all_directories['type_of_file'] == 'application/vnd.google-apps.folder', ['id', 'name']]
+        folders_id = folders_id.set_index('name')['id'].to_dict()
+
+        return folders_id 
+
     def create_folder(self, folder_name = 'New Folder') -> str:
         ''' createa a new folder in main folder '''
+
         folder_metadata = {
             'name': folder_name,
             "mimeType": "application/vnd.google-apps.folder",
             'parents': [self.main_folder_id]
         }
 
-        new_folder_id = self.service.files().create(
-            body=folder_metadata,
-            fields='id'
-        ).execute()
 
-        print(f'Created Folder ID: {new_folder_id["id"]}')
+        if folder_name not in list(self.id_folders().keys()):
+            new_folder = self.service.files().create(
+                body=folder_metadata,
+                fields='id'
+                ).execute()
+            print(f'Created Folder ID: {new_folder["id"]}')
+            return new_folder['id']
 
-        return new_folder_id
+        print('Folder already exists.')
+        folder_id = self.id_folders[folder_name]
+        return folder_id 
          
     def upload_file(self, file_path: str, file_name = 'New File', folder_id: str = None )-> str:
         

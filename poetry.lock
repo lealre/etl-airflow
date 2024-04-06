@@ -122,6 +122,20 @@ files = [
 ]
 
 [[package]]
+name = "faker"
+version = "24.7.1"
+description = "Faker is a Python package that generates fake data for you."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "Faker-24.7.1-py3-none-any.whl", hash = "sha256:73f2bd886e8ce751e660c7d37a6c0a128aab5e1551359335bb79cfea0f4fabfc"},
+    {file = "Faker-24.7.1.tar.gz", hash = "sha256:39d34c63f0d62ed574161e23fe32008917b923d18098ce94c2650fe16463b7d5"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "google-api-core"
 version = "2.18.0"
 description = "Google API client core library"
@@ -611,4 +625,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.5"
-content-hash = "de2fea5715c89696cab101c250b1190050ef73b7d4da57bc98728f8b1d02d29e"
+content-hash = "190a2c4137c7ed5ed8af39ff5ae727f9a64440a3ddb96b10f386d6e56125d293"

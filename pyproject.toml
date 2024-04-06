@@ -11,6 +11,7 @@ google-api-python-client = "^2.125.0"
 google-auth-oauthlib = "^1.2.0"
 python-dotenv = "^1.0.1"
 pandas = "^2.2.1"
+faker = "^24.7.1"
 
 
 [build-system]

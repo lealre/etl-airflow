@@ -1,27 +1,25 @@
 from drive_connections import GoogleDrive
-from googleapiclient.http import MediaFileUpload
-
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+import os
 
 service_account_file = 'service_account.json'
-# folder_name = 'python_to_drive'
-
-# drive_conn = GoogleDrive(service_account_file= service_account_file,
-#                          folder_name= folder_name)
-
-# file_name = 'novo.csv'
-# file_path = 'test.txt'
+main_folder = 'python_to_drive'
 
 
-# print(drive_conn.list_folders_and_files(as_df = True))
+drive_conn = GoogleDrive(service_account_file= service_account_file,
+                         folder_name= main_folder)
+
+def upload_files(folder_id: str):
+    data_folder_path = 'data'
+    folder_content = os.listdir(data_folder_path)
+
+    for file in folder_content:
+        file_path = os.path.join(data_folder_path, file)
+        drive_conn.upload_file(file_name = file, folder_id = folder_id, file_path= file_path)
 
 
-''' connect '''
-SCOPES = ['https://www.googleapis.com/auth/drive']
-CREDS = service_account.Credentials.from_service_account_file(
-    service_account_file,
-    scopes = SCOPES
-)
-service = build('drive', 'v3', credentials= CREDS)
+# print(drive_conn.list_folders_and_files(as_df=True))
 
+
+new_folder_name = 'Companies Invoicing'
+folder_id = drive_conn.create_folder(new_folder_name)
+upload_files(folder_id)
