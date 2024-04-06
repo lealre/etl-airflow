@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.errors import HttpError
+import duckdb
 import io
 import pandas as pd
 
@@ -108,7 +109,7 @@ class GoogleDrive():
 
         return file['id']
 
-    def read_csv_from_drive(self, file_id) -> pd.DataFrame:
+    def read_csv_from_drive(self, file_id: str) -> pd.DataFrame:
         ''' reads a csv from google drive '''
         try: 
             request_file = self.service.files().get_media(fileId=file_id)
