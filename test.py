@@ -1,4 +1,4 @@
-from drive_connections import GoogleDrive
+from src.google_drive import GoogleDrive
 import os
 
 service_account_file = 'service_account.json'
@@ -18,7 +18,6 @@ def upload_files(folder_id: str):
 
 
 # print(drive_conn.list_folders_and_files(as_df=True))
-
 
 new_folder_name = 'Companies Invoicing'
 folder_id = drive_conn.create_folder(new_folder_name)

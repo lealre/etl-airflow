@@ -11,10 +11,3 @@ def generate_companies_name(n:int = 3) -> list[str]:
     
     return companies_list
 
-
-data = {'company': [1,2,3],
-        'currency': x,
-        'value': x,
-        'date': x}
-
-
