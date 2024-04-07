@@ -2,11 +2,11 @@
 
 google-api-python-client==2.125.0
 google-auth-oauthlib==1.2.0
-python-dotenv==1.0.1
+python-dotenv<2.0
 pandas==2.2.1
 faker==24.7.1
 load-dotenv==0.1.0
-sqlalchemy==2.0.29
+sqlalchemy<2.0
 pydantic==2.6.4
 psycopg2-binary==2.9.9
 duckdb==0.10.1
