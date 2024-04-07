@@ -44,9 +44,18 @@ def load_files(list_df: list[pd.DataFrame]) -> None:
 
     engine = create_engine(POSTGRES_DATABASE_URL)
 
+    print('Loading files...')
     for df in list_df:
         # Save to database
         df.to_sql('invoices_table', con=engine, if_exists='append', index=False)
+    
+    print('Files loaded!')
+
+def pipeline(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> None:
+
+    list_df = extract_files(service_account_path, parent_folder_name, folder_to_extract)
+
+    load_files(list_df)
 
 
 
