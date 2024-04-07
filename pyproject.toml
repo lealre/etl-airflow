@@ -13,13 +13,13 @@ python-dotenv = "0.21.0"
 pandas = "^2.2.1"
 faker = "^24.7.1"
 load-dotenv = "^0.1.0"
-sqlalchemy = "1.4.36"
+sqlalchemy = "1.4.52"
 pydantic = "^2.6.4"
 psycopg2-binary = "^2.9.9"
 duckdb = "^0.10.1"
 fsspec = "^2024.3.1"
-apache-airflow = "^2.8.4"
 pytest = "^8.1.1"
+apache-airflow = "^2.8.4"
 
 
 [build-system]
