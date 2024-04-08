@@ -1,4 +1,13 @@
-from etl import pipeline
+## sET PATH AS AIRFLOW
+import sys
+import os
+from load_dotenv import load_dotenv
+
+load_dotenv()
+sys.path.insert(0, os.getenv('PYTHON_PATH'))
+######################################################
+######################################################
+from src.etl import pipeline
 
 
 service_account_path = 'service_account.json'
