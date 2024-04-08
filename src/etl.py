@@ -2,10 +2,11 @@ import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 import os
-from google_drive import GoogleDrive
+from .google_drive import GoogleDrive 
 
 
 def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> list[pd.DataFrame]:
+    
     # connect with google drive
     drive_conn = GoogleDrive(service_account_file= service_account_path,
                             folder_name= parent_folder_name)
@@ -48,6 +49,7 @@ def load_files(list_df: list[pd.DataFrame]) -> None:
     for df in list_df:
         # Save to database
         df.to_sql('invoices_table', con=engine, if_exists='append', index=False)
+        print('Loaded in:', df['Currency'][0])
     
     print('Files loaded!')
 

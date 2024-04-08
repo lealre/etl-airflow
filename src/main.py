@@ -8,5 +8,3 @@ folder_to_extract = 'Companies Invoicing'
 pipeline(service_account_path = service_account_path,
          parent_folder_name = parent_folder_name,
          folder_to_extract = folder_to_extract)
-
-
