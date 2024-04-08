@@ -1,8 +1,12 @@
 import pandas as pd
-from dotenv import load_dotenv
+import pandera as pa
 from sqlalchemy import create_engine
+import json
+from dotenv import load_dotenv
 import os
-from .google_drive import GoogleDrive 
+from .google_drive import GoogleDrive
+from .schema import CompanyRevenue 
+
 
 
 def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> list[pd.DataFrame]:
@@ -20,15 +24,27 @@ def extract_files(service_account_path: str, parent_folder_name: str, folder_to_
     files_info = files_info[['name', 'type_of_file', 'id']]
 
     list_df = []
-
-    for index, row in files_info.iterrows():
-        # read csv file into dataframe
-        df = drive_conn.read_csv_from_drive(file_id=row['id'])
-        file_name = row['name']
-        print(f'File {file_name} extracted')
-        list_df.append(df) 
     
+    for index, row in files_info.iterrows():
+
+        df_raw = drive_conn.read_csv_from_drive(file_id=row['id'])
+        file_name = row['name']
+        print(f'File {file_name} extracted.')   
+
+        try:
+            df_validated = validate_schema_files(df_raw)
+            list_df.append(df_validated)
+            print(f'File {file_name} validated!')
+        except pa.errors.SchemaError as e:
+            print(f"Error in {file_name}:")
+            # print(json.dumps(e.message, indent=4))
+            print(e)
+        
     return list_df
+
+@pa.check_input(CompanyRevenue, lazy = False)
+def validate_schema_files(df: pd.DataFrame) -> pd.DataFrame:
+    return df
 
 
 def load_files(list_df: list[pd.DataFrame]) -> None:
@@ -57,7 +73,9 @@ def pipeline(service_account_path: str, parent_folder_name: str, folder_to_extra
 
     list_df = extract_files(service_account_path, parent_folder_name, folder_to_extract)
 
-    load_files(list_df)
+    # load_files(list_df)
+    
+    print(list_df[0].info()) 
 
 
 
