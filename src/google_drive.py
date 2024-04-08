@@ -107,6 +107,17 @@ class GoogleDrive():
         print(f'File "{file_name}" uploaded successfully with ID: {file["id"]}')
 
         return file['id']
+    
+    def get_csv_files(self, folder_id: str) -> pd.DataFrame:
+
+        df_csv = (
+            self.list_folders_and_files(as_df= True, 
+                                    folder_id = folder_id)
+                                    .loc[:,['name', 'type_of_file', 'id']]
+
+        )
+
+        return df_csv.loc[df_csv['name'].str.endswith('.csv') , :]
 
     def read_csv_from_drive(self, file_id: str) -> pd.DataFrame:
         ''' reads a csv from google drive '''
@@ -121,8 +132,7 @@ class GoogleDrive():
         except HttpError as error:
             print(F'An error occurred: {error}')
 
-        # Reset the file pointer to the beginning
-        file.seek(0)
+        file.seek(0) # Reset the file pointer to the beginning
         df = pd.read_csv(file)
 
         # # to download it        
