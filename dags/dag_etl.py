@@ -7,13 +7,19 @@ from datetime import datetime
         description='Dag with 3 simple steps',
         schedule= '* * * * *',
         start_date= datetime(2024,4,7),
-        catchup= False
+        catchup= False,
+        params= {
+            'service_account_path' : 'service_account.json',
+            'parent_folder_name' : 'python_to_drive',
+            'folder_to_extract' : 'Companies Invoicing'
+
+        }
 )
 def pipeline():
 
     @task(task_id = 'extract-data')
-    def task_extract_files():
-        return extract_files()
+    def task_extract_files(**context):
+        return extract_files(context['params']['service_account_path'], context['params']['parent_folder_name'], context['params']['folder_to_extract'])
     
     @task(task_id = 'load-data')
     def task_load_files(list_df):

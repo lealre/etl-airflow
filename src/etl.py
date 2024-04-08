@@ -5,11 +5,8 @@ import os
 from .google_drive import GoogleDrive 
 
 
-def extract_files() -> list[pd.DataFrame]:
-        
-    service_account_path = 'service_account.json'
-    parent_folder_name = 'python_to_drive'
-    folder_to_extract = 'Companies Invoicing'
+def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> list[pd.DataFrame]:
+    
     # connect with google drive
     drive_conn = GoogleDrive(service_account_file= service_account_path,
                             folder_name= parent_folder_name)
