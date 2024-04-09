@@ -1,55 +1,59 @@
 import pandas as pd
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
-import os
-from .google_drive import GoogleDrive 
+import pandera as pa
+from typing import Union
+from .google_drive import GoogleDrive
+from .database import engine, get_files_ids_from_db
+from .schema import validate_schema_files 
 
-
-def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> list[pd.DataFrame]:
+def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> Union[list[pd.DataFrame], list[None]]:
     
-    # connect with google drive
+    list_df: list[pd.DataFrame] = []
+
     drive_conn = GoogleDrive(service_account_file= service_account_path,
                             folder_name= parent_folder_name)
     
-    # get folder id
-    folders_id = drive_conn.id_folders()
-    invoices_folder_id = folders_id[folder_to_extract]
+    try:
+        revenue_folder_id = drive_conn.id_folders()[folder_to_extract]
+    except:
+        print('There is no folder with this name.')
 
-    # get id from directories
-    files_info = drive_conn.list_folders_and_files(as_df= True, folder_id = invoices_folder_id)
-    files_info = files_info[['name', 'type_of_file', 'id']]
-
-    list_df = []
-
-    for index, row in files_info.iterrows():
-        # read csv file into dataframe
-        df = drive_conn.read_csv_from_drive(file_id=row['id'])
-        file_name = row['name']
-        print(f'File {file_name} extracted')
-        list_df.append(df) 
+    df_files_csv = drive_conn.get_csv_files(folder_id= revenue_folder_id)
     
+    database_files_ids = get_files_ids_from_db()
+
+    for _ , row in df_files_csv.iterrows():
+
+        file_id = row['id']
+        file_name = row['name']
+        if file_id not in database_files_ids:
+            df_raw = drive_conn.read_csv_from_drive(file_id=file_id)
+            print(f'File {file_name} extracted.')   
+            try:
+                df_validated = validate_schema_files(df_raw)
+                df_validated['file_id'] = file_id
+                list_df.append(df_validated)
+            except pa.errors.SchemaError as e:
+                print(f"Error in {file_name}:")
+                # print(json.dumps(e.message, indent=4))
+                print(e)
+        else:
+            print(f'file {file_name} already loaded in database.')
+
     return list_df
 
 
-def load_files(list_df: list[pd.DataFrame]) -> None:
-    
-    load_dotenv(".env")
 
-    POSTGRES_USER = os.getenv('POSTGRES_USER')
-    POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-    POSTGRES_HOST = os.getenv('POSTGRES_HOST')
-    POSTGRES_PORT = os.getenv('POSTGRES_PORT')
-    POSTGRES_DB = os.getenv('POSTGRES_DB')
+def load_files(list_df: Union[list[pd.DataFrame], list[None]]) -> None:
 
-    POSTGRES_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
-
-    engine = create_engine(POSTGRES_DATABASE_URL)
+    if not list_df:
+        print('There are no files to load into the database')
+        return None
 
     print('Loading files...')
     for df in list_df:
-        # Save to database
-        df.to_sql('invoices_table', con=engine, if_exists='append', index=False)
-        print('Loaded in:', df['Currency'][0])
+        file_id = df['file_id'][0]
+        df.to_sql('revenues', con=engine, if_exists='append', index=False)
+        print(f'File with id {file_id} loaded')
     
     print('Files loaded!')
 
@@ -58,6 +62,8 @@ def pipeline(service_account_path: str, parent_folder_name: str, folder_to_extra
     list_df = extract_files(service_account_path, parent_folder_name, folder_to_extract)
 
     load_files(list_df)
+    
+    # print(list_df[0].info()) 
 
 
 

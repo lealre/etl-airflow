@@ -1,4 +1,4 @@
-Company,Currency,Invoice Value,Date
+company,currency,operational_revenue,date
 ABC Inc.,EUR,1000,2023-01
 XYZ Corp.,EUR,1500,2023-02
 123 Ltd.,EUR,2000,2023-03
