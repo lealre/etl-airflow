@@ -31,7 +31,7 @@ def test_missing_value():
     with pytest.raises(pa.errors.SchemaErrors):  
         CompanyRevenue.validate(df, lazy= True)
 
-def test_wrong_date():
+def test_wrong_date_format():
 
     df = pd.DataFrame({
         'company': ['ABC Inc', 'company'],
@@ -42,3 +42,29 @@ def test_wrong_date():
 
     with pytest.raises(pa.errors.SchemaErrors):  
         CompanyRevenue.validate(df, lazy= True)
+
+
+def test_negative_revenue():
+
+    df = pd.DataFrame({
+        'company': ['ABC Inc', 'company'],
+        'currency': ['EUR', 'USD'],
+        'operational_revenue': [-1000, 2000],
+        'date': ['2020-01', '2020-02']
+    })
+
+    with pytest.raises(pa.errors.SchemaErrors):  
+        CompanyRevenue.validate(df, lazy= True)
+
+
+def test_currency_not_allowed():
+
+    df = pd.DataFrame({
+        'company': ['ABC Inc', 'company'],
+        'currency': ['BRL', 'USD'],
+        'operational_revenue': [1000, 2000],
+        'date': ['2020-01', '2020-02']
+    })
+
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenue.validate(df, lazy= True) 
