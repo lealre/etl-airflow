@@ -14,8 +14,3 @@ class CompanyRevenue(pa.SchemaModel):
         strict = True # make sure all specified columns are in the validated dataframe 
         # from_format = # data format before validation.
         # to_format = # data format to serialize into after validation.
-
-
-@pa.check_input(CompanyRevenue, lazy = False)
-def validate_schema_files(df: pd.DataFrame) -> pd.DataFrame:
-    return df

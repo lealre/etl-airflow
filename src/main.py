@@ -1,11 +1,7 @@
-## sET PATH AS AIRFLOW
 import sys
 import os
-from load_dotenv import load_dotenv
-
-load_dotenv()
-sys.path.insert(0, os.getenv('PYTHON_PATH'))
-######################################################
+# Add the root directory of your project to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ######################################################
 from src.etl import pipeline
 

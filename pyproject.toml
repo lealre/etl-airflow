@@ -1,3 +1,4 @@
 [tool.taskipy.tasks]
 test_schema = 'pytest tests/test_schema.py -v'
 test = "pytest tests -v"
+main = 'python src/main.py'
