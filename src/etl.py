@@ -29,13 +29,14 @@ def extract_files(service_account_path: str, parent_folder_name: str, folder_to_
             df_raw = drive_conn.read_csv_from_drive(file_id=file_id)
             print(f'File {file_name} extracted.')   
             try:
-                df_validated = CompanyRevenue.validate(df_raw)
+                df_validated = CompanyRevenue.validate(df_raw, lazy = True)
                 df_validated['file_id'] = file_id
                 list_df.append(df_validated)
-            except pa.errors.SchemaError as e:
-                print(f"Error in {file_name}:")
-                # print(json.dumps(e.message, indent=4))
-                print(e)
+            except pa.errors.SchemaErrors as err:
+                print("Schema errors and failure cases:")
+                print(err.failure_cases)
+                print("\nDataFrame object that failed validation:")
+                print(err.data)
         else:
             print(f'file {file_name} already loaded in database.')
 
