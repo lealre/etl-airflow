@@ -4,6 +4,7 @@ from typing import Union
 from .google_drive import GoogleDrive
 from .database import engine, get_files_ids_from_db
 from .schema import CompanyRevenue 
+from controller import transform_data
 
 def extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> Union[list[pd.DataFrame], list[None]]:
     
@@ -43,7 +44,6 @@ def extract_files(service_account_path: str, parent_folder_name: str, folder_to_
     return list_df
 
 
-
 def load_files(list_df: Union[list[pd.DataFrame], list[None]]) -> None:
 
     if not list_df:
@@ -62,10 +62,12 @@ def pipeline(service_account_path: str, parent_folder_name: str, folder_to_extra
 
     list_df = extract_files(service_account_path, parent_folder_name, folder_to_extract)
 
-    load_files(list_df)
-    
-    # print(list_df[0].info()) 
-
+    df_list = []
+    for df in list_df:
+        df_transformed = transform_data(df)
+        df_list.append(df_transformed)
+        
+    load_files(df_list)
 
 
 
