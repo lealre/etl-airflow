@@ -21,5 +21,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt 
       
-      - name: Test schema
-        run: pytest tests/test_schema.py 
+      - name: Test schema in
+        run: pytest tests/test_schema_in.py 
+              
+      - name: Test schema out
+        run: pytest tests/test_schema_out.py 
