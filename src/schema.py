@@ -1,12 +1,14 @@
 import pandera as pa
 from pandera.typing import Series
+from typing import Optional
 
 class CompanyRevenue(pa.SchemaModel):
 
     company: Series[str]
     currency: Series[str] = pa.Field(isin= ['EUR', 'USD', 'YEN'])
     operational_revenue: Series[float] = pa.Field(ge = 0)
-    date: Series[pa.DateTime] 
+    date: Series[pa.DateTime]
+    file_id: Optional[str]
     
     class Config:
         coerce = True 
