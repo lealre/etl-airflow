@@ -3,7 +3,9 @@ import os
 # Add the root directory of your project to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ######################################################
-from src.etl import pipeline
+import pandas as pd
+from src.etl import pipeline, extract_data_from_files, transform_data
+from pandera.engines import pandas_engine
 
 
 service_account_path = 'service_account.json'
