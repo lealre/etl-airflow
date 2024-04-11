@@ -40,5 +40,4 @@ def pipeline():
 
     task_connect_and_extract >> task_extract_data >> task_transform >> task_load
 
-
 pipeline()
