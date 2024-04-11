@@ -6,7 +6,7 @@ import pytest
 import pandera as pa
 import pandas as pd
 import numpy as np
-from src.schema import CompanyRevenue
+from src.schema import CompanyRevenueBase
 
 def test_valid_schema():
     df = pd.DataFrame({
@@ -16,7 +16,7 @@ def test_valid_schema():
         'date': ['March 2022', '2022-03', '2022/03']
     })
 
-    CompanyRevenue.validate(df)
+    CompanyRevenueBase.validate(df)
 
 def test_aditional_column():
     df = pd.DataFrame({
@@ -28,7 +28,7 @@ def test_aditional_column():
     })
     
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy = True)
+        CompanyRevenueBase.validate(df, lazy = True)
 
 def test_missing_value():
     df = pd.DataFrame({
@@ -39,7 +39,7 @@ def test_missing_value():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy = True)
+        CompanyRevenueBase.validate(df, lazy = True)
 
 def test_parse_to_datetime():
     df = pd.DataFrame({
@@ -50,7 +50,7 @@ def test_parse_to_datetime():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy= True)
+        CompanyRevenueBase.validate(df, lazy= True)
 
 
 def test_date_with_day():
@@ -62,7 +62,7 @@ def test_date_with_day():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy= True)
+        CompanyRevenueBase.validate(df, lazy= True)
 
 def test_dates_differents():
     df = pd.DataFrame({
@@ -73,7 +73,7 @@ def test_dates_differents():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy= True)
+        CompanyRevenueBase.validate(df, lazy= True)
 
 
 def test_negative_revenue():
@@ -85,7 +85,7 @@ def test_negative_revenue():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenue.validate(df, lazy= True)
+        CompanyRevenueBase.validate(df, lazy= True)
 
 
 def test_currency_not_allowed():
@@ -97,7 +97,7 @@ def test_currency_not_allowed():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):
-        CompanyRevenue.validate(df, lazy= True) 
+        CompanyRevenueBase.validate(df, lazy= True) 
 
 
 def test_more_than_one_currency():
@@ -109,4 +109,4 @@ def test_more_than_one_currency():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):
-        CompanyRevenue.validate(df, lazy= True)         
+        CompanyRevenueBase.validate(df, lazy= True)         
