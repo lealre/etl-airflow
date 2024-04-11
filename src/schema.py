@@ -2,7 +2,7 @@ import pandera as pa
 from pandera.typing import Series
 from typing import Optional
 
-class CompanyRevenue(pa.SchemaModel):
+class CompanyRevenueBase(pa.SchemaModel):
 
     company: Series[str]
     currency: Series[str] = pa.Field(isin= ['EUR', 'USD', 'YEN'])
@@ -25,3 +25,10 @@ class CompanyRevenue(pa.SchemaModel):
     @pa.check("date", name = "Date format", error= "There is more than one date;")
     def check_date_format(cls, date: Series[pa.DateTime]) -> Series[bool]:
         return date.nunique() == 1
+    
+    
+class CompanyRevenueTransformed(CompanyRevenueBase):
+
+    file_id: Series[str]
+    convertion_rate: Series[float] = pa.Field(ge= 0)
+    usd_converted: Series[float] = pa.Field(ge= 0)

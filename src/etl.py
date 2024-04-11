@@ -2,7 +2,7 @@ import pandas as pd
 import pandera as pa
 from .google_drive import GoogleDrive
 from .database import engine, get_files_ids_from_db
-from .schema import CompanyRevenue 
+from .schema import CompanyRevenueBase 
 from .transform_utils import get_currencies_rates, transform_and_validate_data
 
 def connect_drive_and_extract_files(service_account_path: str, parent_folder_name: str, folder_to_extract: str) -> list[pd.DataFrame] | list[None]:
@@ -48,13 +48,11 @@ def extract_data_from_files(list_df_files_info: list[pd.DataFrame]) -> list[pd.D
 
     for df in list_df_files_info:
         try:
-            df_validated = CompanyRevenue.validate(df, lazy = True)
+            df_validated = CompanyRevenueBase.validate(df, lazy = True)
             list_df_validated.append(df_validated)
         except pa.errors.SchemaErrors as err:
             print("Schema errors and failure cases:")
             print(err.message)
-            print("\nDataFrame object that failed validation:")
-            print(err.data)
 
     return list_df_validated
 
@@ -70,10 +68,9 @@ def transform_data(list_df_validated: list[pd.DataFrame]) -> list[pd.DataFrame]:
                                                          df_convertion_rates = df_convertion_rates)
             list_df_transformed.append(df_transformed)
         except pa.errors.SchemaErrors as err:
+            print('Validation error in transformation (out)')
             print("Schema errors and failure cases:")
             print(err.message)
-            print("\nDataFrame object that failed validation:")
-            print(err.data)
     
     return list_df_transformed
 
