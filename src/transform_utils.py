@@ -1,6 +1,8 @@
 import pandas as pd
+import pandera as pa
 import pandas_datareader.data as web
 import datetime
+from .schema import CompanyRevenueTransformed
 
 def get_currencies_rates() -> pd.DataFrame:
         
@@ -21,7 +23,7 @@ def get_currencies_rates() -> pd.DataFrame:
 
         return df_convertion_rates
 
-
+@pa.check_output(CompanyRevenueTransformed, lazy= True)
 def transform_and_validate_data(df_to_transform: pd.DataFrame, df_convertion_rates: pd.DataFrame) -> pd.DataFrame:
 
     currency = df_to_transform['currency'][0]

@@ -4,8 +4,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ######################################################
 import pandas as pd
-from src.etl import pipeline, extract_data_from_files, transform_data
-from pandera.engines import pandas_engine
+from src.etl import pipeline
 
 
 service_account_path = 'service_account.json'
