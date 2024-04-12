@@ -193,6 +193,7 @@ task test_schema_out # test schema out
 
 These are some areas where this project can improve:
 
+* The JSON file to connect with the Google Drive API should be passed in another way.
 * As we are interested only in the year and month, it can improve in validating the date in the schema-in, restricting the date to the YYYY-MM format.
 * When a file that doesn't match the schema is found, the script could move it from the folder where it is extracting the files to a new folder, designated for files in the same situation. This would make it easier to separate the correct files from the incorrect schema files.
 * The project can be extended to support more types of files than just CSV, such as PARQUET and XLSX files.
