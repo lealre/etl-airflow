@@ -106,3 +106,85 @@ This final task loads the data into a PostgreSQL database.
 
 ## How to run this project
 
+All the steps here were intended to a `bash` terminal.
+
+Google Drive API requires a JSON file to authenticate the connection, and although it's not correct, in this project it was uploaded in the root directory, where the file `dags/dag_etl.py` will search for the file. So, to run as it is, you need to upload the JSON file in the root directory with the name `service_account.json`.  Make sure that this file is included in `.gitignore`.
+
+The name of the parent folder in Google Drive is set to be `python_to_drive` and the folder from where it will extract the CSV files must be called `Operational Revenue`. You can change the names by just changing the variables `parent_folder_name` and `folder_to_extract_from` in `dags/dag_etl.py`.
+
+You also need to connect the app to your own PostgreSQL database. You can do this by following the steps below:
+
+1.1 - Clone the repository locally:
+```bash
+git https://github.com/lealre/etl-airflow.git
+```
+
+1.2 - Access the project folder:
+```bash
+cd etl-airflow
+```
+
+1.3 - Create the `.env` file in the root folder, passing the respective keys from your own PostgresSQL Database:
+```bash
+echo "POSTGRES_USER=<your-database-keys>" >> .env
+echo "POSTGRES_PASSWORD=<your-database-keys>" >> .env
+echo "POSTGRES_HOST=<your-database-keys>" >> .env
+echo "POSTGRES_PORT=<your-database-keys>" >> .env
+echo "POSTGRES_DB=<your-database-keys>" >> .env
+```
+
+1.4 - Make sure `.env` file is included in `.gitignore`.
+
+From here, we use the Astro CLI to run Airflow with Docker.
+
+1.5 - Install Astro CLI:
+```bash
+curl -sSL install.astronomer.io | sudo bash -s
+```
+
+1.6 - Run Airflow with Docker
+```bash
+astro dev start
+```
+
+NOTES: 
+* Using the flag `--Wait=5m` to wait 5 minutes for the webserver to get healthy before timing out. The default is 1 minute for most machines.
+* `astro dev kill` force-stop and remove all running containers for your local Airflow environment.
+
+After these steps, it will automatically open the localhost link with the Airflow UI. The username and password to access are both `admin`.
+
+### Run without Airflow
+
+You also can run this project without Airflow. To do it, you should follow all the steps until 1.4, and then do the following:
+
+2.1 - Install Python version 3.11.5:
+```bash
+pyenv install 3.11.5
+```
+
+2.2 - Set the local version of Python to 3.11.5:
+```bash
+pyenv local 3.11.5
+```
+
+2.3 - Create a virtual enviroment and activate it:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+2.4 - Install all dependencies from the project:
+```bash
+pip install -r dev-requirements.txt
+```
+
+2.5 - Run the project:
+```bash
+task main
+```
+
+2.6 -  (Optional) Run the schema test:
+```bash
+task test_schema_in # test schema in
+task test_schema_out # test schema out
+```
