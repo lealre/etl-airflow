@@ -12,7 +12,7 @@ This project also has a CI for every Pull Request made using GitHub Actions, whe
 
 ![](pics/etl-diagram.png)
 
-<u>**Task 01:**</u> Connect with Google Drive API and extract CSV files
+<b><u>Task 01:</u></b> Connect with Google Drive API and extract CSV files
 
 In this initial task, the script connects to the Google Drive API by passing our credentials in JSON file format and specifying the parent folder name and the folder from which we want to extract the CSV files. Subsequently, it retrieves all file information from the designated folder, including file name, Google Drive file ID, and file type.
 
