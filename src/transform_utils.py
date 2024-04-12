@@ -30,7 +30,7 @@ def transform_and_validate_data(df_to_transform: pd.DataFrame, df_convertion_rat
 
     if currency == 'USD':
         convertion_rate = 1
-        df_to_transform['conversion_rate'] = convertion_rate
+        df_to_transform['convertion_rate'] = convertion_rate
         df_to_transform['usd_converted']  = df_to_transform['operational_revenue'] 
         return df_to_transform
         
@@ -40,7 +40,7 @@ def transform_and_validate_data(df_to_transform: pd.DataFrame, df_convertion_rat
     
     convertion_rate = df_convertion_rates.loc[convertion_rate_date][currency_pair]
 
-    df_to_transform['conversion_rate'] = convertion_rate
+    df_to_transform['convertion_rate'] = convertion_rate
     df_to_transform['usd_converted']  = df_to_transform['operational_revenue'] * convertion_rate
 
     return df_to_transform
