@@ -1,52 +1,74 @@
 # Orchestrating an ETL with Airflow - From Google Drive to PostgreSQL
 
-This project aims to orchestrate an ETL (Extract-Transform-Load) with Airflow, extracting CSV files from a folder in Google Drive, transforming values and storing in a PostgueSQL database.
+This project aims to orchestrate an ETL (Extract-Transform-Load) with Airflow, extracting CSV files from a folder in Google Drive, transforming values, and storing them in a PostgreSQL database.
 
-In all ETL process the data is handled in a pandas DataFrame format, and all the data validation is perfored using Pandera library, a Pydantic based library to validate DataFrames schemas. By setting a specific data contract, validations occurs in two phases: when extracted and when transformed.
+The data is handled in a pandas DataFrame format, and all the data validation is performed using the [Pandera](https://pandera.readthedocs.io/en/stable/#) library, a Pydantic-based library to validate DataFrame schemas. By setting a specific data contract, validations occur in two phases: when extracted and when transformed.
 
-CI - GitHub Actions
-pytest
+The Airflow implementation was created using the Astro CLI, the command line interface for data orchestration from [Astronomer](https://docs.astronomer.io/).
+
+This project also has a CI for every Pull Request made using GitHub Actions, where the schema contract is tested with the pytest library.
 
 ## How it works
 
 ![](pics/etl-diagram.png)
 
-There are 4 tasks in airflow dag, that are:
+**<u>Task 01:</u> Connect with Google Drive API and extract CSV files**
 
-**Task 01: Connect with Google Drive API and Extract files information**
+In this initial task, the script connects to the Google Drive API by passing our credentials in JSON file format and specifying the parent folder name and the folder from which we want to extract the CSV files. Subsequently, it retrieves all file information from the designated folder, including file name, Google Drive file ID, and file type.
 
-In this first task it connects with Google Drive API, by passing our credentials as a JSON file format, and pass a parameter the parent folder name and the folder from where we want to extract the CSV files. Then it takes all the files informations from the folder we want to extract the it (file name, Google Drive file ID, type of file).
+Google Drive assigns a unique ID to each file uploaded to its folders, which is inserted into the database as a unique file identifier. This allows for filtering to determine if the file has already been uploaded to the database in subsequent Airflow triggers.
 
-As Google Drive gives a specific and unique id to each files that is uploded to its folders, it was inserted in database as a unique file identifier, with the proupose of filter if the files was already uploaded in database or not in the next airflow trigger.
+To facilitate this task, a GoogleDrive class was created to encapsulate all desired functionalities of the Google Drive API in `google_drive.py`. 
 
-To this task a GoogleDrive class was created to abstract all functionalities i wanted from GooGle Drive API in `google_drive.py`.
+The task output is a list of DataFrames, where each DataFrame represents a CSV file extracted from the Google Drive folder.
 
-It returns a list of DataFrames, were each DataFrame is a CSV file extracted from Google Drive folder.
+**<u>Task 02:</u> Validate extracted data**
 
-**Task 02: Extract data from CSV files and validate it**
+Receives the list of DataFrames extracted from Task 01 and validates it according to the contract schema using the Pandera library, raising an invalid schema error if applicable.
 
-This task receives a list of DataFrames and validates it acording to the contract schema by using Pandera library.
+The output is a list of validated DataFrames.
 
-It returns a list of DataFrames validated
+**<u>Task 03:</u> Transform data and validate it**
 
-**Task 03: Transform data and validate it**
+Receives a list of DataFrames and performs the transformations. It maps both the currency and the date from each DataFrame and includes the currency rate conversion and the USD amount converted columns using the rate conversion from that date. It also performs schema validation after this transformation using Pandera.
 
-This tasks receives list of DataFrames and perform the transformations. It maps both the currency and the date from each DataFrame and includes the currency rate convertion and the USD amount converted columns. It also perfomrs a schema validation after this transformation usgin Pandera.
+The conversion rate data is obtained from the FRED `pandas_datareader` library, from the links below:
 
-The convertion rate data is get from FRED pandas_datareader library
+[U.S. Dollars to Euro Spot Exchange Rate](https://fred.stlouisfed.org/series/DEXUSEU)
+[Japanese Yen to U.S. Dollar Spot Exchange Rate](https://fred.stlouisfed.org/series/DEXJPUS)
 
-YEN Rates Convertion (Insert Link)
-EUR Rates Convertion (Insert Link)
+The output is a list of transformed and validated DataFrames.
 
-It returns a list of DataFrames transformed and validated as contract schema.
+**<u>Task 04:</u> Load data in database**
 
+This final task loads the data into a PostgreSQL database. 
 
-**Task 04: Load data in database**
+### Contract Schema
 
-This final task loads the data in a PostgreSQL database. 
+The project uses the following contract schema:
 
+* Schema-in: Used when extracting files from Google Drive in Task 02
 
-### The data
+| Column               | Type                        | Constraints                                    |
+|----------------------|-----------------------------|------------------------------------------------|
+| company              | Series[str]                 |                                                |
+| currency             | Series[str]                 | in ['EUR', 'USD', 'YEN'], all values equal                     |
+| operational_revenue  | Series[float]               | greater than or equal to 0                    |
+| date                 | Series[pa.DateTime]         | all values equal                                               |
+| file_id              | Optional[str]               |                                                |
+
+* Schema-out: Used when transforming data in Task 03
+
+| Column            | Type                | Constraints                     |
+|-------------------|---------------------|---------------------------------|
+| company           | Series[str]         |                                 |
+| currency          | Series[str]         | in ['EUR', 'USD', 'YEN'], all values equal      |
+| operational_revenue | Series[float]    | greater than or equal to 0     |
+| date              | Series[pa.DateTime] | all values equal                             |
+| file_id           | Series[str]         |                                 |
+| convertion_rate   | Series[float]       | greater than or equal to 0     |
+| usd_converted     | Series[float]       | greater than or equal to 0     |
+
 
 ### Project Folder Structure
 
