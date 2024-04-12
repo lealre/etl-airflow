@@ -8,11 +8,41 @@ The Airflow implementation was created using the Astro CLI, the command line int
 
 This project also has a CI for every Pull Request made using GitHub Actions, where the schema contract is tested with the pytest library.
 
-## How it works
-
 ![](pics/etl-diagram.png)
 
-<b><u>Task 01:</u></b> Connect with Google Drive API and extract CSV files
+## Context
+
+This project was built in a context where a folder inside Google Drive regularly receives different CSV files containing the operational revenue from various companies in three types of currencies: USD, EUR, and YEN. This data must be stored in a PostgreSQL database with the operational revenue converted to USD and the currency conversion rate, taking the last quotation of the month date that is in the CSV.
+
+### Contract Schema
+
+The project uses the following contract schema to validate the data:
+
+* Schema-in: Used when extracting files from Google Drive in Task 02
+
+| Column               | Type                        | Constraints                                    |
+|----------------------|-----------------------------|------------------------------------------------|
+| company              | Series[str]                 |                                                |
+| currency             | Series[str]                 | in ['EUR', 'USD', 'YEN'], all values equal                     |
+| operational_revenue  | Series[float]               | greater than or equal to 0                    |
+| date                 | Series[pa.DateTime]         | all values equal                                               |
+| file_id              | Optional[str]               |                                                |
+
+* Schema-out: Used when transforming data in Task 03
+
+| Column            | Type                | Constraints                     |
+|-------------------|---------------------|---------------------------------|
+| company           | Series[str]         |                                 |
+| currency          | Series[str]         | in ['EUR', 'USD', 'YEN'], all values equal      |
+| operational_revenue | Series[float]    | greater than or equal to 0     |
+| date              | Series[pa.DateTime] | all values equal                             |
+| file_id           | Series[str]         |                                 |
+| convertion_rate   | Series[float]       | greater than or equal to 0     |
+| usd_converted     | Series[float]       | greater than or equal to 0     |
+
+## How it works
+
+**<u>Task 01:</u> Connect with Google Drive API and extract CSV files**
 
 In this initial task, the script connects to the Google Drive API by passing our credentials in JSON file format and specifying the parent folder name and the folder from which we want to extract the CSV files. Subsequently, it retrieves all file information from the designated folder, including file name, Google Drive file ID, and file type.
 
@@ -42,33 +72,6 @@ The output is a list of transformed and validated DataFrames.
 **<u>Task 04:</u> Load data in database**
 
 This final task loads the data into a PostgreSQL database. 
-
-### Contract Schema
-
-The project uses the following contract schema:
-
-* Schema-in: Used when extracting files from Google Drive in Task 02
-
-| Column               | Type                        | Constraints                                    |
-|----------------------|-----------------------------|------------------------------------------------|
-| company              | Series[str]                 |                                                |
-| currency             | Series[str]                 | in ['EUR', 'USD', 'YEN'], all values equal                     |
-| operational_revenue  | Series[float]               | greater than or equal to 0                    |
-| date                 | Series[pa.DateTime]         | all values equal                                               |
-| file_id              | Optional[str]               |                                                |
-
-* Schema-out: Used when transforming data in Task 03
-
-| Column            | Type                | Constraints                     |
-|-------------------|---------------------|---------------------------------|
-| company           | Series[str]         |                                 |
-| currency          | Series[str]         | in ['EUR', 'USD', 'YEN'], all values equal      |
-| operational_revenue | Series[float]    | greater than or equal to 0     |
-| date              | Series[pa.DateTime] | all values equal                             |
-| file_id           | Series[str]         |                                 |
-| convertion_rate   | Series[float]       | greater than or equal to 0     |
-| usd_converted     | Series[float]       | greater than or equal to 0     |
-
 
 ### Project Folder Structure
 
