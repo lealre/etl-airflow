@@ -189,7 +189,7 @@ task test_schema_in # test schema in
 task test_schema_out # test schema out
 ```
 
-## Futher Tasks
+## Further Tasks
 
 These are some areas where this project can improve:
 
