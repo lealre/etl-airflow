@@ -6,4 +6,6 @@ load-dotenv==0.1.0
 sqlalchemy<2.0
 psycopg2-binary==2.9.9
 pandera==0.18.3
+pytest==8.1.1
 pandas-datareader==0.10.0
+taskipy==1.12.2
