@@ -1,6 +1,7 @@
 # Authentication google drive
 service_account.json
 
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
