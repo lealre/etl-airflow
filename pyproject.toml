@@ -1,3 +1,7 @@
+[tool.pytest.ini_options]
+pythonpath = "."
+addopts = '-p no:warnings'
+
 [tool.taskipy.tasks]
 test_schema_in = 'pytest tests/test_schema_in.py -v'
 test_schema_out = 'pytest tests/test_schema_out.py -v'
