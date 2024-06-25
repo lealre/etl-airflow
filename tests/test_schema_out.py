@@ -12,7 +12,7 @@ from src.schema import CompanyRevenueTransformed
 def test_valid_schema():
     df = pd.DataFrame({
         'company': ['ABC Inc', 'company', 'Company 02'],
-        'currency': ['EUR', 'EUR', 'EUR'],
+        'currency': ['fail', 'EUR', 'EUR'],
         'operational_revenue': [1000, 2000, 3],
         'date': ['March 2022', '2022-03', '2022/03'],
         'file_id': ['str1', 'str2', 'str3'],
