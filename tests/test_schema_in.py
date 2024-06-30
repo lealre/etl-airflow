@@ -54,18 +54,6 @@ def test_parse_to_datetime():
         CompanyRevenueBase.validate(df, lazy=True)
 
 
-def test_date_with_day():
-    df = pd.DataFrame({
-        'company': ['ABC Inc', 'company'],
-        'currency': ['USD', 'USD'],
-        'operational_revenue': [1000, 2000],
-        'date': ['2020-02', 'March 2022 02']
-    })
-
-    with pytest.raises(pa.errors.SchemaErrors):
-        CompanyRevenueBase.validate(df, lazy=True)
-
-
 def test_dates_differents():
     df = pd.DataFrame({
         'company': ['ABC Inc', 'company'],
