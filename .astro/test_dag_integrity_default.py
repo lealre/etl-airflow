@@ -1,13 +1,12 @@
 """Test the validity of all DAGs. **USED BY DEV PARSE COMMAND DO NOT EDIT**"""
 
-from contextlib import contextmanager
 import logging
 import os
+from contextlib import contextmanager
 
 import pytest
-
-from airflow.models import DagBag, Variable, Connection
 from airflow.hooks.base import BaseHook
+from airflow.models import Connection, DagBag, Variable
 from airflow.utils.db import initdb
 
 # init airflow database
