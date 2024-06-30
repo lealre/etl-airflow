@@ -1,9 +1,6 @@
 # Authentication google drive
 service_account.json
 
-# ToDo List
-todo.md
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
