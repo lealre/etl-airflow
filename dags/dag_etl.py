@@ -9,38 +9,45 @@ from src.etl import (
     validate_data,
 )
 
-parent_folder_name = 'python_to_drive'
-folder_to_extract_from = 'Operational Revenue'
+parent_folder_name = "python_to_drive"
+folder_to_extract_from = "Operational Revenue"
 
 
 @dag(
-        dag_id='ETL-GDrive-to-PostgreSQL',
-        description='Dag to extract data from Google Drive, transform and store in a POstgreSQL',
-        schedule='*/2 * * * *',
+        dag_id="ETL-GDrive-to-PostgreSQL",
+        description=(
+            "Dag to extract data from Google Drive, "
+            "transform and store in a POstgreSQL"
+        ),
+        schedule="*/2 * * * *",
         start_date=datetime(2024, 4, 7),
         catchup=False,
         params={
-            'service_account_path': 'service_account.json',
-            'parent_folder_name': parent_folder_name,
-            'folder_to_extract_from': folder_to_extract_from
+            "service_account_path": "service_account.json",
+            "parent_folder_name": parent_folder_name,
+            "folder_to_extract_from": folder_to_extract_from
 
         }
 )
 def pipeline():
 
-    @task(task_id='connect-with-drive-and-read-files-info')
+    @task(task_id="connect-with-drive-and-read-files-info")
     def task_connect_drive_and_extract_files(**context):
-        return connect_drive_and_extract_files(context['params']['service_account_path'], context['params']['parent_folder_name'], context['params']['folder_to_extract_from'])
+        return connect_drive_and_extract_files(
+            context["params"]["service_account_path"],
+            context["params"]["parent_folder_name"],
+            context["params"]["folder_to_extract_from"]
+        )
 
-    @task(task_id='validate-data')
+    @task(task_id="validate-data")
     def task_validate_data(list_df):
         return validate_data(list_df)
 
-    @task(task_id='transform-data')
+    @task(task_id="transform-data")
     def task_transform_data(list_df):
         return transform_data(list_df)
 
-    @task(task_id='load-data')
+    @task(task_id="load-data")
     def task_load_files(list_df):
         return load_files(list_df)
 
