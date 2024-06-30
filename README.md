@@ -10,6 +10,17 @@ This project also has a CI for every Pull Request made using GitHub Actions, whe
 
 ![](pics/etl-diagram.png)
 
+## Table of Contents
+
+- [Context](#context)
+  - [Contract Schema](#contract-schema)
+- [How it works](#how-it-works)
+  - [Project Folder Structure](#project-folder-structure)
+- [How to run this project](#how-to-run-this-project)
+  - [Run without Airflow](#run-without-airflow)
+- [Further Tasks](#further-tasks)
+
+
 ## Context
 
 This project was built in a context where a folder inside Google Drive regularly receives different CSV files containing the operational revenue from various companies in three types of currencies: USD, EUR, and YEN. This data must be stored in a PostgreSQL database with the operational revenue converted to USD and the currency conversion rate, taking the last quotation of the month date that is in the CSV.
