@@ -1,8 +1,10 @@
-import pytest
-import pandera as pa
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pandera as pa
+import pytest
+
 from src.schema import CompanyRevenueBase
+
 
 def test_valid_schema():
     df = pd.DataFrame({
@@ -14,17 +16,19 @@ def test_valid_schema():
 
     CompanyRevenueBase.validate(df)
 
+
 def test_aditional_column():
     df = pd.DataFrame({
         'company': ['ABC Inc', 'company'],
         'currency': ['EUR', 'EUR'],
         'operational_revenue': [1000, 2000],
         'date': ['2020-02', '2020-02'],
-        'aditional': [0,0]
+        'aditional': [0, 0]
     })
-    
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy = True)
+
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
+
 
 def test_missing_value():
     df = pd.DataFrame({
@@ -34,8 +38,9 @@ def test_missing_value():
         'date': ['2020-02', '2020-02']
     })
 
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy = True)
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
+
 
 def test_parse_to_datetime():
     df = pd.DataFrame({
@@ -45,8 +50,8 @@ def test_parse_to_datetime():
         'date': ['2020-02', 'date']
     })
 
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy= True)
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
 
 
 def test_date_with_day():
@@ -57,8 +62,9 @@ def test_date_with_day():
         'date': ['2020-02', 'March 2022 02']
     })
 
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy= True)
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
+
 
 def test_dates_differents():
     df = pd.DataFrame({
@@ -68,8 +74,8 @@ def test_dates_differents():
         'date': ['2022-02', 'April 2022']
     })
 
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy= True)
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
 
 
 def test_negative_revenue():
@@ -80,8 +86,8 @@ def test_negative_revenue():
         'date': ['2020-02', '2020-02']
     })
 
-    with pytest.raises(pa.errors.SchemaErrors):  
-        CompanyRevenueBase.validate(df, lazy= True)
+    with pytest.raises(pa.errors.SchemaErrors):
+        CompanyRevenueBase.validate(df, lazy=True)
 
 
 def test_currency_not_allowed():
@@ -93,7 +99,7 @@ def test_currency_not_allowed():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):
-        CompanyRevenueBase.validate(df, lazy= True) 
+        CompanyRevenueBase.validate(df, lazy=True)
 
 
 def test_more_than_one_currency():
@@ -105,4 +111,4 @@ def test_more_than_one_currency():
     })
 
     with pytest.raises(pa.errors.SchemaErrors):
-        CompanyRevenueBase.validate(df, lazy= True)         
+        CompanyRevenueBase.validate(df, lazy=True)

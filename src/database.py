@@ -1,9 +1,9 @@
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
-import pandas as pd
-from sqlalchemy import MetaData
 import os
 from typing import Union
+
+import pandas as pd
+from dotenv import load_dotenv
+from sqlalchemy import MetaData, create_engine
 
 load_dotenv(".env")
 
@@ -19,14 +19,14 @@ engine = create_engine(POSTGRES_DATABASE_URL)
 
 
 def get_files_ids_from_db() -> Union[list[str], list[None]]:
-	
-	table_name = 'revenues'    
+
+	table_name = 'revenues'
 	metadata = MetaData(bind=engine)
 	metadata.reflect()
 
-	if table_name in metadata.tables: 
+	if table_name in metadata.tables:
 		query = f"SELECT DISTINCT file_id FROM {table_name}"
 		database_gd_ids = pd.read_sql_query(query, engine)
 		return list(database_gd_ids['file_id'])
-	
-	return []	
+
+	return []
