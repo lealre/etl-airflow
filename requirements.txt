@@ -7,3 +7,4 @@ sqlalchemy<2.0
 psycopg2-binary==2.9.9
 pandera==0.18.3
 pandas-datareader==0.10.0
+numpy==1.26.4
