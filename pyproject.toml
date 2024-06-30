@@ -7,3 +7,22 @@ test_schema_in = 'pytest tests/test_schema_in.py -v'
 test_schema_out = 'pytest tests/test_schema_out.py -v'
 test = "pytest tests -v"
 main = 'python src/main.py'
+lint = 'ruff check . && ruff check . --diff'
+format = 'ruff check . --fix && ruff format .'
+
+[tool.ruff]
+line-length = 79
+extend-exclude = [
+    'tests/dags',
+    '.astro'
+]
+unsafe-fixes = true
+
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+[tool.ruff.format]
+preview = true
+quote-style = "double"
